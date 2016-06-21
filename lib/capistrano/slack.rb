@@ -51,6 +51,10 @@ module Capistrano
           slack_defaults
         end
 
+        set :deployer do    
+          ENV['GIT_AUTHOR_NAME'] || `git config user.name`.chomp    
+        end
+
         namespace :slack do
           task :starting do
             slack_connect "Revision #{fetch(:revision)} of #{fetch(:application)} is deploying to #{fetch(:stage)} by #{fetch(:deployer)}"
