@@ -57,40 +57,12 @@ module Capistrano
 
         namespace :slack do
           task :starting do
-            fetch(:slack_client).ping '', attachments: [{
-                  fallback: "#{fetch(:slack_user)} starting a deploy. Stage: #{fetch(:stage)} "\
-                    "Revision/Branch: #{fetch(:current_revision, fetch(:branch))} "\
-                    "App: #{fetch(:application)}",
-                  title: "Deployment Starting",
-                  color: "#F35A00",
-                  fields: [
-                    {
-                      title: "User",
-                      value: "#{fetch(:slack_user)}",
-                      short: true
-                    },
-                    {
-                      title: "Stage",
-                      value: "#{fetch(:stage)}",
-                      short: true
-                    },
-                    {
-                      title: "Revision/Branch",
-                      value: "#{fetch(:current_revision, fetch(:branch))}",
-                      short: true
-                    },
-                    {
-                      title: "Application",
-                      value: "#{fetch(:application)}",
-                      short: true
-                    }
-                  ]
-                }]
+            slack_connect "Revision #{fetch(:current_revision)} of #{fetch(:application)} is deploying to #{fetch(:stage)} by #{deployer}"
           end
 
           task :finished do
             begin
-              msg = "Revision #{fetch(:revision)} of #{fetch(:application)} finished deploying to #{fetch(:stage)} by #{:deployer}"
+              msg = "Revision #{fetch(:current_revision)} of #{fetch(:application)} finished deploying to #{fetch(:stage)} by #{deployer}"
               if start_time = fetch(:start_time, nil)
                 elapsed = Time.now.to_i - start_time.to_i
                 msg << " in #{elapsed} seconds."
@@ -102,12 +74,12 @@ module Capistrano
           end
 
           task :failed do
-            msg = "#{:deployer}'s deployment of #{fetch(:revision)} to #{fetch(:stage)} failed"
+            msg = "#{deployer}'s deployment of #{fetch(:current_revision)} to #{fetch(:stage)} failed"
             slack_connect(msg)
           end
 
           task :cancelled do
-            msg = "#{:deployer} cancelled deployment of #{fetch(:revision)} to #{fetch(:stage)}"
+            msg = "#{deployer} cancelled deployment of #{fetch(:current_revision)} to #{fetch(:stage)}"
             slack_connect(msg)
           end
         end
