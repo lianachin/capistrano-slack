@@ -32,7 +32,7 @@ module Capistrano
         http.request(request)
       rescue SocketError => e
          puts "#{e.message} or slack may be down"
-       end
+      end
     end
 
     def slack_defaults
