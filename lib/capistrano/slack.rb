@@ -57,12 +57,8 @@ module Capistrano
 
           namespace :slack do
             task :starting do
-              announced_deployer = ActiveSupport::Multibyte::Chars.new(fetch(:deployer)).mb_chars.normalize(:kd).gsub(/[^\x00-\x7F]/,'').to_s
-              msg = if fetch(:branch, nil)
-                "Revision #{fetch(:current_revision, fetch(:branch))} of "\
-                  "#{fetch(:application)} is deploying to #{fetch(:stage)} by #{announced_deployer}"
-              else
-                "#{announced_deployer} is deploying #{fetch(:application)} to #{fetch(:stage, 'production')}"
+              msg = "Revision #{fetch(:current_revision, fetch(:branch))} of "\
+                  "#{fetch(:application)} is deploying to #{fetch(:stage)} by #{fetch(:deployer)}"
               end
 
               slack_connect(msg)
@@ -73,7 +69,7 @@ module Capistrano
               begin
                 announced_deployer = fetch(:deployer)
                 msg = "Revision #{fetch(:current_revision, fetch(:branch))} of "\
-                        "#{fetch(:application)} finished deploying to #{fetch(:stage)} by #{fetch(:slack_user)}"
+                        "#{fetch(:application)} finished deploying to #{fetch(:stage)} by #{fetch(:deployer)}"
                 if start_time = fetch(:start_time, nil)
                   elapsed = Time.now.to_i - start_time.to_i
                   msg << " in #{elapsed} seconds."
@@ -82,6 +78,14 @@ module Capistrano
                 end
                 slack_connect(msg)
               end
+            end
+
+            task :failed do
+              msg = "#{fetch(:deployer)}'s deployment of #{fetch(:current_revision, fetch(:branch))} to #{fetch(:stage)} failed"
+            end
+
+            task :cancelled do
+              msg = "#{fetch(:deployer)} cancelled deployment of #{fetch(:current_revision, fetch(:branch))} to #{fetch(:stage)}"
             end
           end
 
