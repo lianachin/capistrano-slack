@@ -57,13 +57,13 @@ module Capistrano
 
         namespace :slack do
           task :starting do
-            slack_connect "Revision #{fetch(:current_revision, fetch(:branch))} of #{fetch(:application)} is deploying to #{fetch(:stage)} by #{fetch(:deployer)}"
+            slack_connect "Revision #{fetch(:current_revision} of #{fetch(:application)} is deploying to #{fetch(:stage)} by #{fetch(:deployer)}"
             end
           end
 
           task :finished do
             begin
-              msg = "Revision #{fetch(:current_revision, fetch(:branch))} of "\
+              msg = "Revision #{fetch(:current_revision} of "\
                       "#{fetch(:application)} finished deploying to #{fetch(:stage)} by #{fetch(:deployer)}"
               if start_time = fetch(:start_time, nil)
                 elapsed = Time.now.to_i - start_time.to_i
@@ -76,12 +76,12 @@ module Capistrano
           end
 
           task :failed do
-            msg = "#{fetch(:deployer)}'s deployment of #{fetch(:current_revision, fetch(:branch))} to #{fetch(:stage)} failed"
+            msg = "#{fetch(:deployer)}'s deployment of #{fetch(:current_revision} to #{fetch(:stage)} failed"
             slack_connect(msg)
           end
 
           task :cancelled do
-            msg = "#{fetch(:deployer)} cancelled deployment of #{fetch(:current_revision, fetch(:branch))} to #{fetch(:stage)}"
+            msg = "#{fetch(:deployer)} cancelled deployment of #{fetch(:current_revision)} to #{fetch(:stage)}"
             slack_connect(msg)
           end
         end
