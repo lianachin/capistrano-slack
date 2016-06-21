@@ -59,7 +59,8 @@ module Capistrano
             task :starting do
               announced_deployer = ActiveSupport::Multibyte::Chars.new(fetch(:deployer)).mb_chars.normalize(:kd).gsub(/[^\x00-\x7F]/,'').to_s
               msg = if fetch(:branch, nil)
-                "#{announced_deployer} is deploying #{fetch(:application)}'s #{branch} to #{fetch(:stage, 'production')}"
+                "Revision #{fetch(:current_revision, fetch(:branch))} of "\
+                  "#{fetch(:application)} is deploying to #{fetch(:stage)} by #{announced_deployer}"
               else
                 "#{announced_deployer} is deploying #{fetch(:application)} to #{fetch(:stage, 'production')}"
               end
@@ -71,7 +72,8 @@ module Capistrano
             task :finished do
               begin
                 announced_deployer = fetch(:deployer)
-                msg = "#{announced_deployer} deployed #{fetch(:application)} successfully"
+                msg = "Revision #{fetch(:current_revision, fetch(:branch))} of "\
+                        "#{fetch(:application)} finished deploying to #{fetch(:stage)} by #{fetch(:slack_user)}"
                 if start_time = fetch(:start_time, nil)
                   elapsed = Time.now.to_i - start_time.to_i
                   msg << " in #{elapsed} seconds."
