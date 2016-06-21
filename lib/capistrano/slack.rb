@@ -51,11 +51,20 @@ module Capistrano
           slack_defaults
         end
 
-        set :deployer, `git config --get user.name`.chomp
+        set :deployer do
+          ENV['GIT_AUTHOR_NAME'] || `git config user.name`.chomp
+        end
 
         namespace :slack do
           task :starting do
-            slack_connect "#{fetch(:deployer)} is deploying Revision #{fetch(:current_revision)} of #{fetch(:application)} to #{fetch(:stage)}"
+            announced_deployer = ActiveSupport::Multibyte::Chars.new(fetch(:deployer)).mb_chars.normalize(:kd).gsub(/[^\x00-\x7F]/,'').to_s
+            msg = if fetch(:branch, nil)
+              "#{announced_deployer} is deploying #{fetch(:application)}'s #{branch} to #{fetch(:stage, 'production')}"
+            else
+              "#{announced_deployer} is deploying #{fetch(:application)} to #{fetch(:stage, 'production')}"
+            end
+
+            slack_connect(msg)
           end
 
           task :finished do
