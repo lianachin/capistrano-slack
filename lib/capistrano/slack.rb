@@ -79,6 +79,7 @@ module Capistrano
             slack_connect(msg)
           end
         end
+      end
     end
   end
 end
