@@ -13,17 +13,50 @@ module Capistrano
         }
 
     def post_to_channel(color, message)
-      slack_connect(payload(color, message))
+      if use_color?
+        slack_connect(attachment_payload(color, message))
+      else
+        slack_connect(regular_payload(message))
+      end
     end
 
-    def payload(color, announcement)
-    {
-      'channel' => fetch(:slack_room),
-      'username' => fetch(:slack_username, ''),
-      'text' => announcement,
-      'icon_emoji' => fetch(:slack_emoji, ''),
-      'parse' => fetch(:slack_parse, ''),
-      'attachments' => [{
+    def slack_webhook_url
+      fetch(:slack_webhook_url)
+    end
+
+    def slack_connect(message)
+      begin
+        uri = URI.parse(slack_webhook_url)
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+        request = Net::HTTP::Post.new(uri.request_uri)
+        request.set_form_data(:payload => payload(message))
+        http.request(request)
+      rescue SocketError => e
+         puts "#{e.message} or slack may be down"
+      end
+    end
+
+    def regular_payload(announcement)
+      {
+        'channel' => fetch(:slack_room),
+        'username' => fetch(:slack_username, ''),
+        'text' => announcement,
+        'icon_emoji' => fetch(:slack_emoji, ''),
+        'parse' => fetch(:slack_parse, ''),
+        'mrkdwn'     => true
+      }.to_json
+    end
+
+    def attachment_payload(color, announcement)
+      {
+        'channel' => fetch(:slack_room),
+        'username' => fetch(:slack_username, ''),
+        'text' => announcement,
+        'icon_emoji' => fetch(:slack_emoji, ''),
+        'parse' => fetch(:slack_parse, ''),
+        'attachments' => [{
           'fallback'  => announcement,
           'text'      => announcement,
           'color'     => HEX_COLORS[color],
@@ -32,22 +65,8 @@ module Capistrano
       }.to_json
     end
 
-    def slack_webhook_url
-      fetch(:slack_webhook_url)
-    end
-
-    def slack_connect(color, message)
-      begin
-        uri = URI.parse(slack_webhook_url)
-        http = Net::HTTP.new(uri.host, uri.port)
-        http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-        request = Net::HTTP::Post.new(uri.request_uri)
-        request.set_form_data(:payload => payload(color, message))
-        http.request(request)
-      rescue SocketError => e
-         puts "#{e.message} or slack may be down"
-      end
+    def use_color?
+      fetch(:slack_color, true)
     end
 
     def slack_defaults
@@ -79,24 +98,24 @@ module Capistrano
               "#{announced_deployer} is deploying #{fetch(:application)}/revision #{fetch(:current_revision)} to #{fetch(:stage, 'production')}"
             end
 
-            slack_connect(:yellow, msg)
+            post_to_channel(:yellow, msg)
           end
 
           task :finished do
             begin
               msg = "#{fetch(:deployer)} finished deploying #{fetch(:application)}/revision #{fetch(:current_revision)} to #{fetch(:stage)}"
-              slack_connect(:blue, msg)
+              post_to_channel(:blue, msg)
             end
           end
 
           task :failed do
             msg = "FAILED: #{fetch(:deployer)}'s deployment of #{fetch(:application)}/revision #{fetch(:current_revision)} to #{fetch(:stage)} failed"
-            slack_connect(:red, msg)
+            post_to_channel(:red, msg)
           end
 
           task :cancelled do
             msg = "#{fetch(:deployer)} cancelled deployment of #{fetch(:application)}/revision #{fetch(:current_revision)} to #{fetch(:stage)}"
-            slack_connect(:red, msg)
+            post_to_channel(:red, msg)
           end
         end
       end
