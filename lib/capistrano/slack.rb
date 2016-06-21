@@ -6,14 +6,29 @@ require 'active_support/all'
 
 module Capistrano
   module Slack
+    HEX_COLORS = {
+          :yellow  => '#FFFF00',
+          :red   => '#BB0000',
+          :green => '#7CD197',
+        }
 
-    def payload(announcement)
+    def post_to_channel(color, message)
+      slack_connect(payload(color, message))
+    end
+
+    def payload(color, announcement)
     {
       'channel' => fetch(:slack_room),
       'username' => fetch(:slack_username, ''),
       'text' => announcement,
       'icon_emoji' => fetch(:slack_emoji, ''),
-      'parse' => fetch(:slack_parse, '')
+      'parse' => fetch(:slack_parse, ''),
+      'attachments' => [{
+          'fallback'  => announcement,
+          'text'      => announcement,
+          'color'     => HEX_COLORS[color],
+          'mrkdwn_in' => %w{text}
+        }]
       }.to_json
     end
 
@@ -21,7 +36,7 @@ module Capistrano
       fetch(:slack_webhook_url)
     end
 
-    def slack_connect(message)
+    def slack_connect(color, message)
       begin
         uri = URI.parse(slack_webhook_url)
         http = Net::HTTP.new(uri.host, uri.port)
