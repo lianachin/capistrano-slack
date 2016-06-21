@@ -24,7 +24,7 @@ module Capistrano
       fetch(:slack_webhook_url)
     end
 
-    def slack_connect(message)
+    def slack_connect(payload)
       begin
         uri = URI.parse(slack_webhook_url)
         http = Net::HTTP.new(uri.host, uri.port)
