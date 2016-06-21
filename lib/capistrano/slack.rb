@@ -9,7 +9,7 @@ module Capistrano
     HEX_COLORS = {
           :yellow  => '#FFFF00',
           :red   => '#BB0000',
-          :blue  => '#103FFB'
+          :green => '#7CD197',
         }
 
     def post_to_channel(color, message)
@@ -92,20 +92,13 @@ module Capistrano
         namespace :slack do
           task :starting do
             announced_deployer = ActiveSupport::Multibyte::Chars.new(fetch(:deployer)).mb_chars.normalize(:kd).gsub(/[^\x00-\x7F]/,'').to_s
-            msg = if fetch(:branch, nil)
-              "#{announced_deployer} is deploying #{fetch(:application)}'s #{branch} to #{fetch(:stage, 'production')}"
-            else
-              "#{announced_deployer} is deploying #{fetch(:application)}/revision #{fetch(:current_revision)} to #{fetch(:stage, 'production')}"
-            end
-
+            msg = "#{announced_deployer} is deploying #{fetch(:application)}/revision #{fetch(:current_revision)} to #{fetch(:stage, 'production')}"
             post_to_channel(:yellow, msg)
           end
 
           task :finished do
-            begin
-              msg = "#{fetch(:deployer)} finished deploying #{fetch(:application)}/revision #{fetch(:current_revision)} to #{fetch(:stage)}"
-              post_to_channel(:blue, msg)
-            end
+            msg = "#{fetch(:deployer)} finished deploying #{fetch(:application)}/revision #{fetch(:current_revision)} to #{fetch(:stage)}"
+            post_to_channel(:green, msg)
           end
 
           task :failed do
