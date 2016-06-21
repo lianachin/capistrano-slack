@@ -9,7 +9,7 @@ module Capistrano
     HEX_COLORS = {
           :yellow  => '#FFFF00',
           :red   => '#BB0000',
-          :green => '#7CD197',
+          :blue  => '#103FFB'
         }
 
     def post_to_channel(color, message)
@@ -79,24 +79,24 @@ module Capistrano
               "#{announced_deployer} is deploying #{fetch(:application)}/revision #{fetch(:current_revision)} to #{fetch(:stage, 'production')}"
             end
 
-            slack_connect(msg)
+            slack_connect(:yellow, msg)
           end
 
           task :finished do
             begin
               msg = "#{fetch(:deployer)} finished deploying #{fetch(:application)}/revision #{fetch(:current_revision)} to #{fetch(:stage)}"
-              slack_connect(msg)
+              slack_connect(:blue, msg)
             end
           end
 
           task :failed do
             msg = "FAILED: #{fetch(:deployer)}'s deployment of #{fetch(:application)}/revision #{fetch(:current_revision)} to #{fetch(:stage)} failed"
-            slack_connect(msg)
+            slack_connect(:red, msg)
           end
 
           task :cancelled do
             msg = "#{fetch(:deployer)} cancelled deployment of #{fetch(:application)}/revision #{fetch(:current_revision)} to #{fetch(:stage)}"
-            slack_connect(msg)
+            slack_connect(:red, msg)
           end
         end
       end
