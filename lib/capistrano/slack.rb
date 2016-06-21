@@ -31,7 +31,7 @@ module Capistrano
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_PEER
         request = Net::HTTP::Post.new(uri.request_uri)
-        request.set_form_data(:payload => payload(message))
+        request.set_form_data(:payload => payload)
         http.request(request)
       rescue SocketError => e
          puts "#{e.message} or slack may be down"
