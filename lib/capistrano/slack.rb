@@ -57,12 +57,8 @@ module Capistrano
 
         namespace :slack do
           task :starting do
-            msg = "Revision #{fetch(:current_revision, fetch(:branch))} of "\
-                "#{fetch(:application)} is deploying to #{fetch(:stage)} by #{fetch(:deployer)}"
+            slack_connect "Revision #{fetch(:current_revision, fetch(:branch))} of #{fetch(:application)} is deploying to #{fetch(:stage)} by #{fetch(:deployer)}"
             end
-
-            slack_connect(msg)
-            set(:start_time, Time.now)
           end
 
           task :finished do
