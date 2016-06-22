@@ -7,9 +7,9 @@ require 'active_support/all'
 module Capistrano
   module Slack
     HEX_COLORS = {
-          :yellow  => '#FFFF00',
+          :yellow  => '#FFCC00',
           :red   => '#BB0000',
-          :green => '#7CD197',
+          :green => '#009933',
         }
 
     def post_to_channel(color, message)
@@ -77,6 +77,18 @@ module Capistrano
       end
     end
 
+    def slack_app_name
+      fetch(:slack_app_name, fetch(:application))
+    end
+
+    def revision
+      @revision ||= `git ls-remote #{repository} #{branch}`.split(" ").first
+    end
+
+    def deploy_target
+      [slack_app_name, branch].join('/') + (revision ? " (#{revision[0..5]})" : "")
+    end
+
     def self.extended(configuration)
       configuration.load do
 
@@ -91,22 +103,22 @@ module Capistrano
         namespace :slack do
           task :starting do
             announced_deployer = ActiveSupport::Multibyte::Chars.new(fetch(:deployer)).mb_chars.normalize(:kd).gsub(/[^\x00-\x7F]/,'').to_s
-            msg = "#{announced_deployer} is deploying #{fetch(:application)}/revision #{fetch(:current_revision)} to #{fetch(:stage, 'production')}"
+            msg = "#{announced_deployer} is deploying #{fetch(:application)}/revision #{deploy_target} to #{fetch(:stage, 'production')}"
             post_to_channel(:yellow, msg)
           end
 
           task :finished do
-            msg = "#{fetch(:deployer)} finished deploying #{fetch(:application)}/revision #{fetch(:current_revision)} to #{fetch(:stage)}"
+            msg = "#{fetch(:deployer)} finished deploying #{fetch(:application)}/revision #{deploy_target} to #{fetch(:stage)}"
             post_to_channel(:green, msg)
           end
 
           task :failed do
-            msg = "FAILED: #{fetch(:deployer)}'s deployment of #{fetch(:application)}/revision #{fetch(:current_revision)} to #{fetch(:stage)} failed"
+            msg = "FAILED: #{fetch(:deployer)}'s deployment of #{fetch(:application)}/revision #{deploy_target} to #{fetch(:stage)} failed"
             post_to_channel(:red, msg)
           end
 
           task :cancelled do
-            msg = "#{fetch(:deployer)} cancelled deployment of #{fetch(:application)}/revision #{fetch(:current_revision)} to #{fetch(:stage)}"
+            msg = "#{fetch(:deployer)} cancelled deployment of #{fetch(:application)}/revision #{deploy_target} to #{fetch(:stage)}"
             post_to_channel(:red, msg)
           end
         end
