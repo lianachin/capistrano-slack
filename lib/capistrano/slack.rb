@@ -78,7 +78,8 @@ module Capistrano
     end
 
     def github_revision_link
-      "<https://github.com/RUNDSP/run_portal/commit/#{fetch(:latest_revision)}|#{fetch(:latest_revision)[0..6]}>"
+      puts fetch(:current_revision)
+      "<https://github.com/RUNDSP/run_portal/commit/#{fetch(:current_revision)}|#{fetch(:current_revision)[0..6]}>"
     end
 
     def self.extended(configuration)
