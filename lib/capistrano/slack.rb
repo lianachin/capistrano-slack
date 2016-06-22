@@ -78,12 +78,13 @@ module Capistrano
     end
 
     def github_revision_link
-      # "<https://github.com/RUNDSP/run_portal/commit/#{fetch(:real_revision)}|#{fetch(:real_revision)[0..6]}>"
-
-      from = (previous_revision rescue nil)
-      to = (latest_revision rescue nil)
-      logs = `git rev-parse --short #{from}..#{to}`
-      logs
+      if fetch(:branch, nil)
+        name = "#{application}/#{branch}"
+        name += " (revision #{real_revision[0..7]})" if real_revision
+        name
+      else
+        application
+      end
     end
 
     def self.extended(configuration)
