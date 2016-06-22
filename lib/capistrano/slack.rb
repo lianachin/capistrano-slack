@@ -78,8 +78,7 @@ module Capistrano
     end
 
     def github_revision_id
-      name = "#{application}"
-      name += "#{real_revision}" if real_revision
+      name = "#{real_revision}"
       name
     end
 
