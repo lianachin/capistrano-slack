@@ -78,7 +78,7 @@ module Capistrano
     end
 
     def revision
-      "<https://github.com/RUNDSP/#{fetch(:application)}/commit/#{fetch(:current_revision)}|#{fetch(:current_revision)[0..6]}>"
+      "<https://github.com/RUNDSP/run_portal/commit/#{fetch(:slack_revision)}|#{fetch(:slack_revision)[0..6]}>"
     end
 
     def self.extended(configuration)
