@@ -78,7 +78,7 @@ module Capistrano
     end
 
     def github_revision_link
-      "<https://github.com/RUNDSP/run_portal/commit/#{fetch(:revision)}|#{fetch(:revision)[0..6]}>"
+      `git rev-parse --short HEAD`
     end
 
     def self.extended(configuration)
