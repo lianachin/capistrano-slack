@@ -77,15 +77,8 @@ module Capistrano
       end
     end
 
-    def current_revision_ref
-      commit = `git show --pretty=%H`
-      binding.pry
-      puts "==================&&&&&&&&&&====================="
-      puts commit
-    end
-
     def github_revision_link
-      "<https://github.com/RUNDSP/run_portal/commit/#{current_revision_ref}|#{current_revision_ref[0..6]}>"
+      "<https://github.com/RUNDSP/run_portal/commit/#{fetch(:revision)}|#{fetch(:revision)[0..6]}>"
     end
 
     def self.extended(configuration)
