@@ -78,13 +78,9 @@ module Capistrano
     end
 
     def github_revision_link
-      if fetch(:branch, nil)
-        name = "#{application}/#{branch}"
-        name += " (revision #{real_revision[0..7]})" if real_revision
-        name
-      else
-        application
-      end
+      name = "#{application}"
+      name += " (revision #{real_revision[0..7]})" if real_revision
+      name
     end
 
     def self.extended(configuration)
