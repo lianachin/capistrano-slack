@@ -79,6 +79,7 @@ module Capistrano
 
     def current_revision_ref
       commit = `git show --pretty=%H`
+      binding.pry
       puts "==================&&&&&&&&&&====================="
       puts commit
     end
