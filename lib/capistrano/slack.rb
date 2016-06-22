@@ -78,7 +78,7 @@ module Capistrano
     end
 
     def revision
-      `git rev-parse --short #{fetch(:current_revision)}`
+      "<https://github.com/RUNDSP/#{fetch(:application)}/commit/#{fetch(:current_revision)}|#{fetch(:current_revision)[0..6]}>"
     end
 
     def self.extended(configuration)
