@@ -77,10 +77,14 @@ module Capistrano
       end
     end
 
-    def github_revision_link
+    def github_revision_id
       name = "#{application}"
-      name += " (revision #{real_revision[0..7]})" if real_revision
+      name += "#{real_revision}" if real_revision
       name
+    end
+
+    def github_commit_link
+      "<https://github.com/RUNDSP/run_portal/commit/#{github_revision_id}|#{github_revision_id[0..7]}>"
     end
 
     def self.extended(configuration)
@@ -97,22 +101,22 @@ module Capistrano
         namespace :slack do
           task :starting do
             announced_deployer = ActiveSupport::Multibyte::Chars.new(fetch(:deployer)).mb_chars.normalize(:kd).gsub(/[^\x00-\x7F]/,'').to_s
-            msg = "#{announced_deployer} is deploying #{fetch(:application)}/revision #{github_revision_link} to #{fetch(:stage, 'production')}"
+            msg = "#{announced_deployer} is deploying #{fetch(:application)}/revision #{github_commit_link} to #{fetch(:stage, 'production')}"
             post_to_channel(:yellow, msg)
           end
 
           task :finished do
-            msg = "#{fetch(:deployer)} finished deploying #{fetch(:application)}/revision #{github_revision_link} to #{fetch(:stage)}"
+            msg = "#{fetch(:deployer)} finished deploying #{fetch(:application)}/revision #{github_commit_link} to #{fetch(:stage)}"
             post_to_channel(:green, msg)
           end
 
           task :failed do
-            msg = "FAILED: #{fetch(:deployer)}'s deployment of #{fetch(:application)}/revision #{github_revision_link} to #{fetch(:stage)} failed"
+            msg = "FAILED: #{fetch(:deployer)}'s deployment of #{fetch(:application)}/revision #{github_commit_link} to #{fetch(:stage)} failed"
             post_to_channel(:red, msg)
           end
 
           task :cancelled do
-            msg = "#{fetch(:deployer)} cancelled deployment of #{fetch(:application)}/revision #{github_revision_link} to #{fetch(:stage)}"
+            msg = "#{fetch(:deployer)} cancelled deployment of #{fetch(:application)}/revision #{github_commit_link} to #{fetch(:stage)}"
             post_to_channel(:red, msg)
           end
         end
