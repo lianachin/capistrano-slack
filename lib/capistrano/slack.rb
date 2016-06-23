@@ -99,24 +99,23 @@ module Capistrano
 
         namespace :slack do
           task :starting do
-            announced_deployer = ActiveSupport::Multibyte::Chars.new(fetch(:deployer)).mb_chars.normalize(:kd).gsub(/[^\x00-\x7F]/,'').to_s
-            msg = "#{announced_deployer} is deploying #{fetch(:application)}/revision #{github_commit_link} to #{fetch(:stage, 'production')}"
-            post_to_channel(:yellow, msg)
+            on_rollback do
+              post_to_channel(:red, "#{fetch(:deployer)} cancelled deployment of #{fetch(:application)}/revision #{github_commit_link} to #{fetch(:stage)}")
+            end
+
+            post_to_channel(:yellow, "#{fetch(:deployer)} is deploying #{fetch(:application)}/revision #{github_commit_link} to #{fetch(:stage, 'production')}")
           end
 
           task :finished do
-            msg = "#{fetch(:deployer)} finished deploying #{fetch(:application)}/revision #{github_commit_link} to #{fetch(:stage)}"
-            post_to_channel(:green, msg)
+            post_to_channel(:green, "#{fetch(:deployer)} finished deploying #{fetch(:application)}/revision #{github_commit_link} to #{fetch(:stage)}")
           end
 
           task :failed do
-            msg = "FAILED: #{fetch(:deployer)}'s deployment of #{fetch(:application)}/revision #{github_commit_link} to #{fetch(:stage)} failed"
-            post_to_channel(:red, msg)
+            post_to_channel(:red, "FAILED: #{fetch(:deployer)}'s deployment of #{fetch(:application)}/revision #{github_commit_link} to #{fetch(:stage)} failed")
           end
 
           task :cancelled do
-            msg = "#{fetch(:deployer)} cancelled deployment of #{fetch(:application)}/revision #{github_commit_link} to #{fetch(:stage)}"
-            post_to_channel(:red, msg)
+            post_to_channel(:red, "#{fetch(:deployer)} cancelled deployment of #{fetch(:application)}/revision #{github_commit_link} to #{fetch(:stage)}")
           end
         end
       end
