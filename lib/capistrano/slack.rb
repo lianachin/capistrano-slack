@@ -89,20 +89,12 @@ module Capistrano
     def self.extended(configuration)
       configuration.load do
 
-        before('deploy') do
-          slack_defaults
-        end
-
         set :deployer do
           ENV['GIT_AUTHOR_NAME'] || `git config user.name`.chomp
         end
 
         namespace :slack do
           task :starting do
-            on_rollback do
-              post_to_channel(:red, "#{fetch(:deployer)} cancelled deployment of #{fetch(:application)}/revision #{github_commit_link} to #{fetch(:stage)}")
-            end
-
             post_to_channel(:yellow, "#{fetch(:deployer)} is deploying #{fetch(:application)}/revision #{github_commit_link} to #{fetch(:stage, 'production')}")
           end
 
